@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Practices.Unity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,14 +9,24 @@ namespace Reservations
 {
     class Program
     {
+        static IUnityContainer InitializeIoCContainer()
+        {
+            return new UnityContainer()
+                .RegisterType<Application, Application>()
+                .RegisterType<IVacationPartFactory, VacationPartFactory>(
+                    new ContainerControlledLifetimeManager()) // lifetimemanager - one instance fo the class for ioc container
+                .RegisterType<IHotelSelector, HotelSelector>(
+                    new ContainerControlledLifetimeManager())
+                .RegisterType<IHotelService, HotelService>(
+                    new ContainerControlledLifetimeManager())
+                .RegisterType<IAirplaneService, AirplaneService>(
+                    new ContainerControlledLifetimeManager());
+        }
         static void Main(string[] args)
         {
-            new Application(
-                new VacationPartFactory(
-                    new HotelSelector(),
-                    new HotelService(),
-                    new AirplaneService()))
-                    .Run();
+            InitializeIoCContainer()
+                .Resolve<Application>()
+                .Run();
             Console.ReadLine();
         }
     }
